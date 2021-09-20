@@ -1,11 +1,22 @@
 package com.example.springsecuritybasic.controller;
 
+import com.example.springsecuritybasic.model.User;
+import com.example.springsecuritybasic.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller   // View를 리턴하겠다는 애너테이션
 public class IndexController {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder encoder;
 
     @GetMapping({"", "/"})
     public String index() {
@@ -30,21 +41,27 @@ public class IndexController {
         return "manager";
     }
 
-    @GetMapping("/login")
-    @ResponseBody
+    @GetMapping("/loginForm")
     public String login() {
-        return "login";
+        return "loginForm";
     }
 
-    @GetMapping("/join")
-    @ResponseBody
-    public String join() {
-        return "join";
+    @GetMapping("/joinForm")
+    public String joinForm() {
+        return "joinForm";
     }
 
-    @GetMapping("/joinProc")
-    @ResponseBody
-    public String joinProc() {
-        return "회원가입이 완료되었습니다.";
+    @PostMapping("/join")
+    public String join(User user) {
+        System.out.println(user);
+
+        user.setRole("ROLE_USER");
+        String rawPassword = user.getPassword();
+        String encPassword = encoder.encode(rawPassword);
+        user.setPassword(encPassword);
+
+        userRepository.save(user);
+
+        return "redirect:/loginForm";
     }
 }
