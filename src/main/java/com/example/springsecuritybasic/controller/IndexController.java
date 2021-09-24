@@ -1,11 +1,16 @@
 package com.example.springsecuritybasic.controller;
 
+import com.example.springsecuritybasic.config.auth.PrincipalDetails;
 import com.example.springsecuritybasic.model.User;
 import com.example.springsecuritybasic.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +24,32 @@ public class IndexController {
 
     @Autowired
     private BCryptPasswordEncoder encoder;
+
+    @GetMapping("/test/login")
+    @ResponseBody
+    /* 일반 로그인 사용자에 대한 정보 받기 */
+    public String testLogin(Authentication authentication, @AuthenticationPrincipal PrincipalDetails userDetails) {
+        /* 방법1 : Authentication을 DI해서 다운캐스팅 과정을 거쳐서 유저 정보를 받음 */
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        System.out.println(principalDetails.getUser());
+
+        /* 방법2 : "@AuthenticationPrincipal" 애너테이션을 통해서 유저 정보를 받음 */
+        System.out.println(userDetails.getUser());
+        return "세션 정보 확인";
+    }
+
+    @GetMapping("/test/oauth/login")
+    @ResponseBody
+    /* OAuth 로그인 사용자에 대한 정보 받기 */
+    public String testOauthLogin(Authentication authentication, @AuthenticationPrincipal OAuth2User oAuth) {
+        /* 방법1 : Authentication을 DI해서 다운캐스팅 과정을 거쳐서 유저 정보를 받음 */
+        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        System.out.println(oAuth2User.getAttributes());
+
+        /* 방법2 : "@AuthenticationPrincipal" 애너테이션을 통해서 유저 정보를 받음 */
+        System.out.println(oAuth.getAttributes());
+        return "세션 정보 확인";
+    }
 
     @GetMapping({"", "/"})
     public String index() {
