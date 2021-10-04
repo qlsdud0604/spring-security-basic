@@ -18,7 +18,7 @@ public class PrincipalDetails implements UserDetails {
     }
 
     @Override
-    /* 해당 유저의 권한을 리턴 */
+    /* 해당 유저의 권한을 리턴하는 메서드 (현재 User 객채의 role 타입은 String 타입이기 때문에 변환이 필요)*/
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collection = new ArrayList<>();
 
@@ -66,5 +66,5 @@ public class PrincipalDetails implements UserDetails {
 // 시큐리티가 "/login" 주소 요청이 오면 낚아채서 로그인을 진행시킴
 // 로그인 진행이 완료가 되면 시큐리티 session을 만들어 줌
 // session에 들어갈수 있는 정보는 Authentication 객체여야 함
-// Authentication 안에 User 정보가 있어야 함 (이떄 User의 타입은 UserDetails 타입이어야 함)
-// 스프링 session => Authentication => UserDetails
+// Authentication 안에 User 정보가 있어야 함 (이때 User 객체의 타입은 UserDetails 타입이어야 함)
+// 시큐리티 session => Authentication => UserDetails

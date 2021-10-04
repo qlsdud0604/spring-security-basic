@@ -29,12 +29,15 @@ public class IndexController {
     @ResponseBody
     /* 일반 로그인 사용자에 대한 정보 받기 */
     public String testLogin(Authentication authentication, @AuthenticationPrincipal PrincipalDetails userDetails) {
+        System.out.println("====================/test/login====================");
+
         /* 방법1 : Authentication을 DI해서 다운캐스팅 과정을 거쳐서 유저 정보를 받음 */
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         System.out.println(principalDetails.getUser());
 
         /* 방법2 : "@AuthenticationPrincipal" 애너테이션을 통해서 유저 정보를 받음 */
         System.out.println(userDetails.getUser());
+
         return "세션 정보 확인";
     }
 
@@ -42,13 +45,16 @@ public class IndexController {
     @ResponseBody
     /* OAuth 로그인 사용자에 대한 정보 받기 */
     public String testOauthLogin(Authentication authentication, @AuthenticationPrincipal OAuth2User oAuth) {
+        System.out.println("====================/test/oauth/login====================");
+
         /* 방법1 : Authentication을 DI해서 다운캐스팅 과정을 거쳐서 유저 정보를 받음 */
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         System.out.println(oAuth2User.getAttributes());
 
         /* 방법2 : "@AuthenticationPrincipal" 애너테이션을 통해서 유저 정보를 받음 */
         System.out.println(oAuth.getAttributes());
-        return "세션 정보 확인";
+
+        return "OAuth 세션 정보 확인";
     }
 
     @GetMapping({"", "/"})
@@ -98,14 +104,14 @@ public class IndexController {
         return "redirect:/loginForm";
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured("ROLE_ADMIN")   // 해당 url은 ROLE_ADMIN 권한만 접근 가능
     @GetMapping("/info")
     @ResponseBody
     public String info() {
         return "개인정보";
     }
 
-    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")   // 해당 url은 ROLE_MANAGER 또는 ROLE_ADMIN 권한만 접근 가능
     @GetMapping("/data")
     @ResponseBody
     public String data() {

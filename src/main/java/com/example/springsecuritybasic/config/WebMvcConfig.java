@@ -20,3 +20,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.viewResolver(resolver);
     }
 }
+
+// .html 파일을 .mustache 파일로 인식이 가능하도록 설정
