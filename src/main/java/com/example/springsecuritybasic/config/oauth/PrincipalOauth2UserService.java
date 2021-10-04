@@ -1,6 +1,9 @@
 package com.example.springsecuritybasic.config.oauth;
 
 import com.example.springsecuritybasic.config.auth.PrincipalDetails;
+import com.example.springsecuritybasic.config.oauth.provider.FacebookUserInfo;
+import com.example.springsecuritybasic.config.oauth.provider.GoogleUserInfo;
+import com.example.springsecuritybasic.config.oauth.provider.OAuth2UserInfo;
 import com.example.springsecuritybasic.model.User;
 import com.example.springsecuritybasic.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,11 +35,23 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         System.out.println("getAttributes : " + oAuth2User.getAttributes());
 
         /* 소셜 로그인 수행시 강제 회원가입 */
-        String provider = userRequest.getClientRegistration().getClientId();   // ex) google
-        String provideId = oAuth2User.getAttribute("sub");   // ex) 103163902666771091884
+        OAuth2UserInfo oAuth2UserInfo = null;
+
+        if (userRequest.getClientRegistration().getRegistrationId().equals("google")) {
+            System.out.println("Google 로그인 요청");
+            oAuth2UserInfo = new GoogleUserInfo(oAuth2User.getAttributes());
+        } else if (userRequest.getClientRegistration().getRegistrationId().equals("facebook")) {
+            System.out.println("Facebook 로그인 요청청");
+            oAuth2UserInfo = new FacebookUserInfo(oAuth2User.getAttributes());
+        } else {
+            System.out.println("Google, Facebook 로그인만 지원합니다.");
+        }
+
+        String provider = oAuth2UserInfo.getProvider();   // ex) google
+        String provideId = oAuth2UserInfo.getProviderId();  // ex) 103163902666771091884
         String username = provider + "_" + provideId;   // ex) google_103163902666771091884
         String password = encoder.encode("겟인데어");
-        String email = oAuth2User.getAttribute("email");
+        String email = oAuth2UserInfo.getEmail();
         String role = "ROLE_USER";
 
         User userEntity = userRepository.findByUsername(username);
@@ -53,7 +68,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 
             userRepository.save(userEntity);
         } else {
-            System.out.println("구글 로그인으로 회원가입을 한 상태입니다.");
+            System.out.println("소셜 계정으로 회원가입을 한 상태입니다.");
         }
 
         return new PrincipalDetails(userEntity, oAuth2User.getAttributes());
