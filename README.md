@@ -18,7 +18,7 @@
 ```
 * Database
 ```
- - MySQLD
+ - MySQL
 ```
 </br>
 
